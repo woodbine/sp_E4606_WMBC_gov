@@ -72,6 +72,9 @@ for link in links:
             continue
         csvYr = link.text.split('.csv')[0].split('(')[0].strip().split(' ')[-1]
         csvMth = link.text.split('.csv')[0].split('(')[0].strip().split(' ')[-2][:3]
+         if 'format' in csvYr:
+            csvYr = '2015'
+            csvMth = 'Feb'
         csvMth = convert_mth_strings(csvMth.upper())
         filename = entity_id + "_" + csvYr + "_" + csvMth
         todays_date = str(datetime.now())
