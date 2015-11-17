@@ -8,7 +8,7 @@ import scraperwiki
 import urllib2
 from datetime import datetime
 from bs4 import BeautifulSoup
-import requests
+
 
 
 #### FUNCTIONS 1.0
@@ -52,7 +52,7 @@ def validateURL(url):
         else:
             ext = os.path.splitext(url)[1]
         validURL = r.getcode() == 200
-        validFiletype = ext in ['.csv', '.xls', '.xlsx', '.docx']
+        validFiletype = ext.lower() in ['.csv', '.xls', '.xlsx']
         return validURL, validFiletype
     except:
         print ("Error validating URL.")
@@ -91,10 +91,11 @@ url = "http://opendata.walsall.org.uk/opendata/opendata-datasets/opendata-datase
 errors = 0
 data = []
 
-#### READ HTML 1.1 - no "lxml"
+#### READ HTML 1.2   'html.parser', 'lxml' parser does not work
 
-html = requests.get(url)
-soup = BeautifulSoup(html.text, 'html.parser')
+
+html = urllib2.urlopen(url)
+soup = BeautifulSoup(html, 'html.parser')
 
 #### SCRAPE DATA
 
@@ -102,13 +103,13 @@ block = soup.find('div', attrs = {'id':'container'})
 
 links = block.findAll('a', href=True)
 for link in links:
-    if '.csv' in link['href']:
+    if '.csv' in link['href'] or 'April 2015.csv' in link.text:
         url = 'http://opendata.walsall.org.uk/' + link['href']
-        csvfile = link.text.split('.csv')[0].split('(')[0].strip().split(' ')
+        csvfile = link.text.split('.csv')[0].split('.xlsx')[0].split('(')[0].strip().split(' ')
         if len(csvfile)< 2:
             continue
-        csvYr = link.text.split('.csv')[0].split('(')[0].strip().split(' ')[-1]
-        csvMth = link.text.split('.csv')[0].split('(')[0].strip().split(' ')[-2][:3]
+        csvYr = link.text.split('.csv')[0].split('.xlsx')[0].split('(')[0].strip().split(' ')[-1]
+        csvMth = link.text.split('.csv')[0].split('.xlsx')[0].split('(')[0].strip().split(' ')[-2][:3]
         if 'format' in csvYr:
             csvYr = '2015'
             csvMth = 'Feb'
