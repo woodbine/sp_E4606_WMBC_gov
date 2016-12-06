@@ -87,7 +87,7 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "E4606_WMBC_gov"
-url = "http://opendata.walsall.org.uk/opendata/opendata-datasets/opendata-datasets-st.htm"
+url = "http://cms.walsall.gov.uk/opendata-datasets/opendata-datasets-st.htm"
 errors = 0
 data = []
 
@@ -104,17 +104,27 @@ block = soup.find('div', attrs = {'id':'container'})
 links = block.findAll('a', href=True)
 for link in links:
     if '.csv' in link['href'] or 'April 2015.csv' in link.text:
-        url = 'http://opendata.walsall.org.uk/' + link['href']
+        url = 'http://cms.walsall.gov.uk/' + link['href']
         csvfile = link.text.split('.csv')[0].split('.xlsx')[0].split('(')[0].strip().split(' ')
-        if len(csvfile)< 2:
-            continue
-        csvYr = link.text.split('.csv')[0].split('.xlsx')[0].split('(')[0].strip().split(' ')[-1]
-        csvMth = link.text.split('.csv')[0].split('.xlsx')[0].split('(')[0].strip().split(' ')[-2][:3]
+        csvYr = ''
+        try:
+            csvYr = link.text.split('.csv')[0].split('.xlsx')[0].split('(')[0].strip().split(' ')[-1]
+        except:
+            pass
+        csvMth = ''
+        try:
+            csvMth = link.text.split('.csv')[0].split('.xlsx')[0].split('(')[0].strip().split(' ')[-2][:3]
+        except:
+            csvMth = link.text.split('.csv')[0].split('.xlsx')[0].split('(')[0].strip().split('_')[0][:3]
         if 'format' in csvYr:
             csvYr = '2015'
             csvMth = 'Feb'
+        if 'spending' in csvYr:
+            csvYr = csvYr.split('_')[1]
+        if 'spe' in csvMth:
+            csvMth = 'Nov'
+            csvYr = '2015'
         csvMth = convert_mth_strings(csvMth.upper())
-        todays_date = str(datetime.now())
         data.append([csvYr, csvMth, url])
 
 #### STORE DATA 1.0
